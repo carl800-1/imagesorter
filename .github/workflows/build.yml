@@ -28,7 +28,7 @@ jobs:
           echo "Artifact size: $(( $(wc -c < dist/imagesorter.exe) / 1024 )) KB"
 
       - name: Upload build artifact
-        if: always()
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: imagesorter
@@ -38,6 +38,7 @@ jobs:
   release:
     name: Create Release
     needs: build
+    if: success()
     runs-on: windows-latest
     permissions:
       contents: write
@@ -47,6 +48,13 @@ jobs:
         with:
           name: imagesorter
           path: dist
+
+      - name: Debug - list downloaded files
+        run: |
+          echo "=== Files in dist/ ==="
+          Get-ChildItem -Recurse dist/
+          echo "=== File size ==="
+          (Get-Item dist/imagesorter.exe).Length
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
